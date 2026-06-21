@@ -1457,7 +1457,7 @@ async function saveEntry() {
   if (!betrag || betrag <= 0) { toast('Bitte gültigen Betrag eingeben', 'error'); return; }
   const btn = document.querySelector('#entryOverlay .btn-primary');
   btn.disabled = true; btn.textContent = '⏳ Speichern...';
-  const { error } = await db.from('cockpit_eintraege').insert([{ typ: entryType, monat, datum, produkt, betrag }]);
+  const { error } = await db.from('cockpit_transaktionen').insert([{ typ: entryType, monat, datum, produkt, betrag }]);
   btn.disabled = false; btn.textContent = '💾 Speichern';
   if (error) { toast('Fehler: ' + error.message, 'error'); return; }
   closeEntryModal();
@@ -1466,7 +1466,7 @@ async function saveEntry() {
 }
 
 async function deleteCustomEntry(id) {
-  const { error } = await db.from('cockpit_eintraege').delete().eq('id', id);
+  const { error } = await db.from('cockpit_transaktionen').delete().eq('id', id);
   if (error) { toast('Fehler: ' + error.message, 'error'); return; }
   toast('Eintrag gelöscht', 'success');
   await renderCockpit();
