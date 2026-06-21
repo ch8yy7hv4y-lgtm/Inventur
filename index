@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sonnenbrillen Inventur</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #1a1a2e;
+    --accent: #e8b86d;
+    --accent-light: #fdf3e3;
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.1);
+    --text: #1a1a2e;
+    --text-muted: #6b6b7b;
+    --danger: #dc3545;
+    --success: #28a745;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .header h1 { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .header h1 span { font-size: 1.4rem; }
+  .btn-add {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  /* CONFIG BANNER */
+  .config-banner {
+    background: #fff3cd;
+    border-bottom: 1px solid #ffc107;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .config-banner a { color: #856404; font-weight: 600; }
+
+  /* SEARCH & FILTER */
+  .toolbar {
+    padding: 1rem 1.25rem 0.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .search-wrap { flex: 1; min-width: 180px; position: relative; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.4; }
+  .search-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 0.9rem;
+    outline: none;
+    color: var(--text);
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .filter-select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* STATS BAR */
+  .stats { display: flex; gap: 0.75rem; padding: 0.5rem 1.25rem 1rem; overflow-x: auto; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+  .stat-card .stat-val { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+  .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+    padding: 0 1.25rem 6rem;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .product-card.low-stock { border-color: #ffc107; }
+  .product-card.out-of-stock { border-color: var(--danger); opacity: 0.7; }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+  }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-img.no-img { background: linear-gradient(135deg, #e8e8f0 0%, #d0d0e0 100%); }
+
+  .card-body { padding: 0.75rem; }
+  .card-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-brand { font-size: 0.78rem; color: var(--text-muted); }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+  .card-price { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+  .stock-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+  .stock-ok { background: #d4edda; color: #155724; }
+  .stock-low { background: #fff3cd; color: #856404; }
+  .stock-out { background: #f8d7da; color: #721c24; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 4rem; color: var(--text-muted); grid-column: 1 / -1; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MODAL OVERLAY */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 1rem;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    margin: auto;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .modal-header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-header h2 { font-size: 1rem; font-weight: 600; }
+  .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    opacity: 0.8;
+  }
+  .btn-close:hover { opacity: 1; }
+
+  .modal-body { padding: 1.25rem; }
+
+  /* FORM */
+  .form-section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .form-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-group { margin-bottom: 0.75rem; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: var(--text-muted); }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  /* IMAGE UPLOAD */
+  .img-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .img-upload-area:hover, .img-upload-area.drag-over { border-color: var(--accent); background: var(--accent-light); }
+  .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .img-preview { max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); margin-top: 0.75rem; display: none; }
+  .img-preview.visible { display: block; margin: 0.75rem auto 0; }
+  .upload-hint { font-size: 0.82rem; color: var(--text-muted); }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+  /* MODAL FOOTER */
+  .modal-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { opacity: 0.88; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* DETAIL VIEW */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    overflow-y: auto;
+  }
+  .detail-overlay.open { display: block; }
+  .detail-modal {
+    background: var(--surface);
+    min-height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .detail-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    color: #ccc;
+  }
+  .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-content { padding: 1.25rem; }
+  .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .detail-name { font-size: 1.3rem; font-weight: 700; }
+  .detail-brand { color: var(--text-muted); font-size: 0.9rem; }
+  .detail-price { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .detail-section { margin: 1.25rem 0; }
+  .detail-section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .detail-field { background: var(--bg); border-radius: var(--radius-sm); padding: 0.75rem; }
+  .detail-field .field-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
+  .detail-field .field-val { font-weight: 600; font-size: 0.95rem; }
+  .detail-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .detail-notes { background: var(--bg); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.9rem; line-height: 1.6; }
+
+  /* TOAST */
+  .toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+  .toast {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    animation: toast-in 0.3s ease;
+    pointer-events: auto;
+    white-space: nowrap;
+  }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* SETUP SCREEN */
+  .setup-screen {
+    max-width: 480px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .setup-screen h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+  .setup-screen p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .setup-steps { counter-reset: steps; }
+  .setup-step { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: flex-start; }
+  .setup-step-num { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .setup-step-text { font-size: 0.88rem; }
+  .setup-step-text strong { display: block; margin-bottom: 2px; }
+  .setup-step-text code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 0.82rem; font-family: monospace; }
+  .setup-form { margin-top: 1.5rem; }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: repeat(2, 1fr); padding: 0 0.75rem 6rem; }
+    .toolbar { padding: 0.75rem; }
+    .stats { padding: 0.5rem 0.75rem 0.75rem; }
+    .detail-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFIG MODAL -->
+<div class="overlay" id="configOverlay">
+  <div class="modal" style="margin: auto;">
+    <div class="modal-header">
+      <h2>🔑 Supabase Verbindung</h2>
+    </div>
+    <div class="modal-body">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="setup-step-num">1</div>
+          <div class="setup-step-text">
+            <strong>Supabase Projekt erstellen</strong>
+            Geh auf <a href="https://supabase.com" target="_blank" style="color: var(--accent);">supabase.com</a> und erstelle ein kostenloses Projekt.
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="setup-step-num">2</div>
+          <div class="setup-step-text">
+            <strong>Datenbanktabelle anlegen</strong>
+            Geh zu <strong>SQL Editor</strong> und führe diesen Code aus:<br><br>
+            <textarea readonly style="width:100%; height:160px; font-family:monospace; font-size:0.78rem; background:#f0f0f0; border:1px solid #ddd; border-radius:6px; padding:8px; resize:none;">CREATE TABLE produkte (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  marke text,
+  modell text,
+  farbe text,
+  material text,
+  menge integer DEFAULT 0,
+  preis numeric(10,2),
+  breite_mm numeric(5,1),
+  hoehe_mm numeric(5,1),
+  stegbreite_mm numeric(5,1),
+  bugellaenge_mm numeric(5,1),
+  glasbreite_mm numeric(5,1),
+  glashoehe_mm numeric(5,1),
+  bild_url text,
+  notizen text,
+  erstellt_am timestamptz DEFAULT now()
+);
+
+-- Öffentliche Lesezugriffe aktivieren
+ALTER TABLE produkte ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHECK (true);</textarea>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="setup-step-num">3</div>
+          <div class="setup-step-text">
+            <strong>Storage Bucket anlegen</strong>
+            Geh zu <strong>Storage</strong> → <strong>New Bucket</strong> → Name: <code>bilder</code> → <strong>Public</strong> aktivieren → erstellen.
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="setup-step-num">4</div>
+          <div class="setup-step-text">
+            <strong>API Keys eintragen</strong>
+            Geh zu <strong>Settings → API</strong> und kopiere URL + anon key.
+          </div>
+        </div>
+      </div>
+      <div class="setup-form">
+        <div class="form-group">
+          <label>Supabase URL</label>
+          <input type="url" id="cfgUrl" placeholder="https://xxxxx.supabase.co">
+        </div>
+        <div class="form-group">
+          <label>Anon Key (public)</label>
+          <input type="text" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveConfig()">✓ Verbinden & Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <h1><span>🕶️</span> Sonnenbrillen Inventur</h1>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn-add" onclick="openAddModal()">+ Neu</button>
+    <button onclick="openConfigOverlay()" style="background:none;border:none;color:white;cursor:pointer;font-size:1.1rem;padding:4px;" title="Einstellungen">⚙️</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main id="mainApp" style="display:none;">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="search" id="searchInput" placeholder="Suchen..." oninput="filterProducts()">
+    </div>
+    <select class="filter-select" id="filterStatus" onchange="filterProducts()">
+      <option value="">Alle</option>
+      <option value="ok">Vorrätig</option>
+      <option value="low">Wenig</option>
+      <option value="out">Ausverkauft</option>
+    </select>
+    <select class="filter-select" id="filterMarke" onchange="filterProducts()">
+      <option value="">Alle Marken</option>
+    </select>
+  </div>
+
+  <div class="stats" id="statsBar">
+    <div class="stat-card"><div class="stat-val" id="statTotal">-</div><div class="stat-label">Modelle</div></div>
+    <div class="stat-card"><div class="stat-val" id="statMenge">-</div><div class="stat-label">Stück gesamt</div></div>
+    <div class="stat-card"><div class="stat-val" id="statWert">-</div><div class="stat-label">Lagerwert</div></div>
+    <div class="stat-card"><div class="stat-val" id="statLow">-</div><div class="stat-label">Wenig Lager</div></div>
+  </div>
+
+  <div class="grid" id="productGrid">
+    <div class="loading"><div class="spinner"></div>Lade Produkte...</div>
+  </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="formTitle">Neue Brille</h2>
+      <button class="btn-close" onclick="closeFormModal()">×</button>
+    </div>
+    <div class="modal-body" style="max-height:75vh;overflow-y:auto;">
+
+      <div class="form-section">
+        <div class="form-section-title">📷 Bild</div>
+        <div class="img-upload-area" id="uploadArea" ondragover="handleDrag(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <input type="file" accept="image/*" id="imgFileInput" onchange="handleImageSelect(event)">
+          <div id="uploadPlaceholder">
+            <div class="upload-icon">📷</div>
+            <div style="font-weight:600;margin-bottom:4px;">Bild hochladen</div>
+            <div class="upload-hint">Tippen oder Datei hierher ziehen<br>JPG, PNG, WEBP bis 5 MB</div>
+          </div>
+          <img id="imgPreview" class="img-preview" alt="Vorschau">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">🕶️ Produktinfo</div>
+        <div class="form-group">
+          <label>Bezeichnung *</label>
+          <input type="text" id="fName" placeholder="z.B. Aviator Classic" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marke</label>
+            <input type="text" id="fMarke" placeholder="z.B. Ray-Ban">
+          </div>
+          <div class="form-group">
+            <label>Modell</label>
+            <input type="text" id="fModell" placeholder="z.B. RB3025">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Farbe</label>
+            <input type="text" id="fFarbe" placeholder="z.B. Schwarz/Gold">
+          </div>
+          <div class="form-group">
+            <label>Material</label>
+            <select id="fMaterial">
+              <option value="">—</option>
+              <option>Metall</option>
+              <option>Kunststoff</option>
+              <option>Titan</option>
+              <option>Acetat</option>
+              <option>Holz</option>
+              <option>Karbonfaser</option>
+              <option>Edelstahl</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">💰 Bestand & Preis</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Menge (Stück)</label>
+            <input type="number" id="fMenge" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Preis (€)</label>
+            <input type="number" id="fPreis" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">📐 Maße (mm)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gesamtbreite</label>
+            <input type="number" id="fBreite" step="0.1" placeholder="136.0">
+          </div>
+          <div class="form-group">
+            <label>Gesamthöhe</label>
+            <input type="number" id="fHoehe" step="0.1" placeholder="45.0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stegbreite</label>
+            <input type="number" id="fSteg" step="0.1" placeholder="14.0">
+          </div>
+          <div class="form-group">
+            <label>Bügellänge</label>
+            <input type="number" id="fBugel" step="0.1" placeholder="140.0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Glasbreite</label>
+            <input type="number" id="fGlasB" step="0.1" placeholder="58.0">
+          </div>
+          <div class="form-group">
+            <label>Glashöhe</label>
+            <input type="number" id="fGlasH" step="0.1" placeholder="47.0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">📝 Notizen</div>
+        <div class="form-group">
+          <textarea id="fNotizen" placeholder="Weitere Infos, Besonderheiten..."></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeFormModal()">Abbrechen</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveProduct()">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-modal">
+    <div class="header" style="position:relative;">
+      <h1 style="font-size:1rem;"><span>🕶️</span> Detail</h1>
+      <button onclick="closeDetailModal()" style="background:none;border:none;color:white;cursor:pointer;font-size:1.4rem;padding:0 4px;">×</button>
+    </div>
+    <div class="detail-img" id="detailImgWrap">
+      <img id="detailImg" style="display:none;" alt="">
+      <span id="detailImgPlaceholder">🕶️</span>
+    </div>
+    <div class="detail-content">
+      <div class="detail-header">
+        <div>
+          <div class="detail-name" id="dName"></div>
+          <div class="detail-brand" id="dBrand"></div>
+        </div>
+        <div>
+          <div class="detail-price" id="dPrice"></div>
+          <div id="dBadge" style="text-align:right;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">Bestand & Info</div>
+        <div class="detail-grid">
+          <div class="detail-field"><div class="field-label">Menge</div><div class="field-val" id="dMenge"></div></div>
+          <div class="detail-field"><div class="field-label">Farbe</div><div class="field-val" id="dFarbe"></div></div>
+          <div class="detail-field"><div class="field-label">Material</div><div class="field-val" id="dMaterial"></div></div>
+          <div class="detail-field"><div class="field-label">Modell</div><div class="field-val" id="dModell"></div></div>
+        </div>
+      </div>
+
+      <div class="detail-section" id="dMasseSection">
+        <div class="detail-section-title">Maße</div>
+        <div class="detail-grid" id="dMasseGrid"></div>
+      </div>
+
+      <div class="detail-section" id="dNotizenSection" style="display:none;">
+        <div class="detail-section-title">Notizen</div>
+        <div class="detail-notes" id="dNotizen"></div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn btn-primary" style="flex:1;" onclick="editCurrentProduct()">✏️ Bearbeiten</button>
+        <button class="btn btn-danger" onclick="deleteCurrentProduct()">🗑️ Löschen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CONFIG_KEY = 'sb_inventur_config';
+let db = null;
+let allProducts = [];
+let currentProductId = null;
+let selectedImageFile = null;
+let currentImageUrl = null;
+
+function loadConfig() {
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || null; } catch { return null; }
+}
+function saveConfigToStorage(url, key) {
+  localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key }));
+}
+
+const DEFAULT_URL = 'https://huxpxqmrgmcjzbrlcivz.supabase.co';
+const DEFAULT_KEY = 'sb_publishable_CAshZOldapU61KwQRV8NbQ_FEeBwHie';
+
+async function initApp() {
+  document.getElementById('mainApp').style.display = '';
+  const cfg = loadConfig() || { url: DEFAULT_URL, key: DEFAULT_KEY };
+  try {
+    db = window.supabase.createClient(cfg.url, cfg.key);
+    await loadProducts();
+  } catch (e) {
+    document.getElementById('productGrid').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><div style="font-weight:600;margin-bottom:4px;">Verbindungsfehler</div><div style="font-size:0.88rem;">Bitte Einstellungen prüfen (⚙️)</div></div>';
+    console.error(e);
+  }
+}
+
+function openConfigOverlay() { showConfigOverlay(); }
+
+function showConfigOverlay() {
+  const cfg = loadConfig();
+  if (cfg) {
+    document.getElementById('cfgUrl').value = cfg.url || 'https://huxpxqmrgmcjzbrlcivz.supabase.co';
+    document.getElementById('cfgKey').value = cfg.key || '';
+  }
+  document.getElementById('configOverlay').classList.add('open');
+}
+
+async function saveConfig() {
+  const url = document.getElementById('cfgUrl').value.trim();
+  const key = document.getElementById('cfgKey').value.trim();
+  if (!url || !key) { toast('Bitte beide Felder ausfüllen', 'error'); return; }
+  saveConfigToStorage(url, key);
+  try {
+    db = window.supabase.createClient(url, key);
+    const { error } = await db.from('produkte').select('id').limit(1);
+    if (error) throw error;
+    document.getElementById('configOverlay').classList.remove('open');
+    document.getElementById('mainApp').style.display = '';
+    toast('Verbindung erfolgreich! ✓', 'success');
+    await loadProducts();
+  } catch (e) {
+    toast('Verbindung fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+async function loadProducts() {
+  document.getElementById('productGrid').innerHTML = '<div class="loading"><div class="spinner"></div>Lade Produkte...</div>';
+  const { data, error } = await db.from('produkte').select('*').order('erstellt_am', { ascending: false });
+  if (error) { toast('Fehler beim Laden: ' + error.message, 'error'); return; }
+  allProducts = data || [];
+  updateMarkenFilter();
+  renderProducts(allProducts);
+  updateStats(allProducts);
+}
+
+function updateMarkenFilter() {
+  const sel = document.getElementById('filterMarke');
+  const current = sel.value;
+  const marken = [...new Set(allProducts.map(p => p.marke).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Alle Marken</option>' + marken.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  sel.value = current;
+}
+
+function filterProducts() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const marke = document.getElementById('filterMarke').value;
+  const filtered = allProducts.filter(p => {
+    const matchQ = !q || [p.name, p.marke, p.modell, p.farbe].some(v => v && v.toLowerCase().includes(q));
+    const matchM = !marke || p.marke === marke;
+    let matchS = true;
+    if (status === 'ok') matchS = p.menge > 5;
+    if (status === 'low') matchS = p.menge > 0 && p.menge <= 5;
+    if (status === 'out') matchS = p.menge === 0 || p.menge === null;
+    return matchQ && matchM && matchS;
+  });
+  renderProducts(filtered);
+}
+
+function updateStats(products) {
+  const total = products.length;
+  const menge = products.reduce((s, p) => s + (p.menge || 0), 0);
+  const wert = products.reduce((s, p) => s + ((p.menge || 0) * (p.preis || 0)), 0);
+  const low = products.filter(p => p.menge > 0 && p.menge <= 5).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statMenge').textContent = menge;
+  document.getElementById('statWert').textContent = wert.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+  document.getElementById('statLow').textContent = low;
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderProducts(products) {
+  const grid = document.getElementById('productGrid');
+  if (!products.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🕶️</div><div style="font-weight:600;margin-bottom:4px;">Keine Produkte gefunden</div><div style="font-size:0.88rem;">Klicke "+ Neu" um dein erstes Produkt hinzuzufügen.</div></div>';
+    return;
+  }
+  grid.innerHTML = products.map(p => {
+    const stockClass = !p.menge ? 'out-of-stock' : p.menge <= 5 ? 'low-stock' : '';
+    const badgeClass = !p.menge ? 'stock-out' : p.menge <= 5 ? 'stock-low' : 'stock-ok';
+    const badgeText = !p.menge ? 'Aus' : p.menge <= 5 ? `${p.menge} Stk` : `${p.menge} Stk`;
+    const imgHtml = p.bild_url
+      ? `<img src="${esc(p.bild_url)}" alt="${esc(p.name)}" loading="lazy">`
+      : `<span style="font-size:2.5rem;">🕶️</span>`;
+    return `
+    <div class="product-card ${stockClass}" onclick="openDetail('${p.id}')">
+      <div class="card-img ${p.bild_url ? '' : 'no-img'}">${imgHtml}</div>
+      <div class="card-body">
+        <div class="card-name">${esc(p.name)}</div>
+        <div class="card-brand">${esc(p.marke || '—')}</div>
+        <div class="card-footer">
+          <div class="card-price">${p.preis ? formatCurrency(p.preis) : '—'}</div>
+          <span class="stock-badge ${badgeClass}">${badgeText}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ADD / EDIT FORM ──────────────────────────────────────────────────────────
+function openAddModal() {
+  currentProductId = null;
+  selectedImageFile = null;
+  currentImageUrl = null;
+  document.getElementById('formTitle').textContent = 'Neue Brille hinzufügen';
+  resetForm();
+  document.getElementById('formOverlay').classList.add('open');
+}
+
+function closeFormModal() {
+  document.getElementById('formOverlay').classList.remove('open');
+}
+
+function resetForm() {
+  ['fName','fMarke','fModell','fFarbe','fNotizen','fBreite','fHoehe','fSteg','fBugel','fGlasB','fGlasH'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fMenge').value = '0';
+  document.getElementById('fPreis').value = '';
+  document.getElementById('fMaterial').value = '';
+  document.getElementById('imgPreview').classList.remove('visible');
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('uploadPlaceholder').style.display = '';
+  document.getElementById('imgFileInput').value = '';
+}
+
+function fillForm(p) {
+  document.getElementById('fName').value = p.name || '';
+  document.getElementById('fMarke').value = p.marke || '';
+  document.getElementById('fModell').value = p.modell || '';
+  document.getElementById('fFarbe').value = p.farbe || '';
+  document.getElementById('fMaterial').value = p.material || '';
+  document.getElementById('fMenge').value = p.menge ?? 0;
+  document.getElementById('fPreis').value = p.preis || '';
+  document.getElementById('fBreite').value = p.breite_mm || '';
+  document.getElementById('fHoehe').value = p.hoehe_mm || '';
+  document.getElementById('fSteg').value = p.stegbreite_mm || '';
+  document.getElementById('fBugel').value = p.bugellaenge_mm || '';
+  document.getElementById('fGlasB').value = p.glasbreite_mm || '';
+  document.getElementById('fGlasH').value = p.glashoehe_mm || '';
+  document.getElementById('fNotizen').value = p.notizen || '';
+  if (p.bild_url) {
+    currentImageUrl = p.bild_url;
+    const preview = document.getElementById('imgPreview');
+    preview.src = p.bild_url;
+    preview.classList.add('visible');
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+  }
+}
+
+async function saveProduct() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('Bezeichnung ist Pflicht', 'error'); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Speichern...';
+
+  let bildUrl = currentImageUrl;
+  if (selectedImageFile) {
+    const ext = selectedImageFile.name.split('.').pop();
+    const filename = `${Date.now()}.${ext}`;
+    const { data, error } = await db.storage.from('bilder').upload(filename, selectedImageFile, { upsert: true });
+    if (error) { toast('Bild-Upload fehlgeschlagen: ' + error.message, 'error'); btn.disabled = false; btn.textContent = '💾 Speichern'; return; }
+    const { data: urlData } = db.storage.from('bilder').getPublicUrl(filename);
+    bildUrl = urlData.publicUrl;
+  }
+
+  const payload = {
+    name,
+    marke: document.getElementById('fMarke').value.trim() || null,
+    modell: document.getElementById('fModell').value.trim() || null,
+    farbe: document.getElementById('fFarbe').value.trim() || null,
+    material: document.getElementById('fMaterial').value || null,
+    menge: parseInt(document.getElementById('fMenge').value) || 0,
+    preis: parseFloat(document.getElementById('fPreis').value) || null,
+    breite_mm: parseFloat(document.getElementById('fBreite').value) || null,
+    hoehe_mm: parseFloat(document.getElementById('fHoehe').value) || null,
+    stegbreite_mm: parseFloat(document.getElementById('fSteg').value) || null,
+    bugellaenge_mm: parseFloat(document.getElementById('fBugel').value) || null,
+    glasbreite_mm: parseFloat(document.getElementById('fGlasB').value) || null,
+    glashoehe_mm: parseFloat(document.getElementById('fGlasH').value) || null,
+    notizen: document.getElementById('fNotizen').value.trim() || null,
+    bild_url: bildUrl,
+  };
+
+  let error;
+  if (currentProductId) {
+    ({ error } = await db.from('produkte').update(payload).eq('id', currentProductId));
+  } else {
+    ({ error } = await db.from('produkte').insert([payload]));
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Speichern';
+  if (error) { toast('Fehler: ' + error.message, 'error'); return; }
+  toast(currentProductId ? 'Produkt aktualisiert ✓' : 'Produkt hinzugefügt ✓', 'success');
+  closeFormModal();
+  await loadProducts();
+}
+
+// ── IMAGE HANDLING ───────────────────────────────────────────────────────────
+function handleImageSelect(e) {
+  const file = e.target.files[0];
+  if (file) setImagePreview(file);
+}
+function handleDrag(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('uploadArea').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) setImagePreview(file);
+}
+function setImagePreview(file) {
+  if (file.size > 5 * 1024 * 1024) { toast('Bild zu groß (max. 5 MB)', 'error'); return; }
+  selectedImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('imgPreview');
+    preview.src = e.target.result;
+    preview.classList.add('visible');
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── DETAIL VIEW ──────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  currentProductId = id;
+  document.getElementById('dName').textContent = p.name;
+  document.getElementById('dBrand').textContent = p.marke || '';
+  document.getElementById('dPrice').textContent = p.preis ? formatCurrency(p.preis) : '—';
+  document.getElementById('dMenge').textContent = (p.menge || 0) + ' Stück';
+  document.getElementById('dFarbe').textContent = p.farbe || '—';
+  document.getElementById('dMaterial').textContent = p.material || '—';
+  document.getElementById('dModell').textContent = p.modell || '—';
+
+  const badgeClass = !p.menge ? 'stock-out' : p.menge <= 5 ? 'stock-low' : 'stock-ok';
+  const badgeText = !p.menge ? 'Ausverkauft' : p.menge <= 5 ? 'Wenig Lager' : 'Vorrätig';
+  document.getElementById('dBadge').innerHTML = `<span class="stock-badge ${badgeClass}">${badgeText}</span>`;
+
+  const detailImg = document.getElementById('detailImg');
+  const placeholder = document.getElementById('detailImgPlaceholder');
+  if (p.bild_url) {
+    detailImg.src = p.bild_url; detailImg.style.display = 'block'; placeholder.style.display = 'none';
+  } else {
+    detailImg.style.display = 'none'; placeholder.style.display = '';
+  }
+
+  const masseFields = [
+    { label: 'Gesamtbreite', val: p.breite_mm, unit: 'mm' },
+    { label: 'Gesamthöhe', val: p.hoehe_mm, unit: 'mm' },
+    { label: 'Stegbreite', val: p.stegbreite_mm, unit: 'mm' },
+    { label: 'Bügellänge', val: p.bugellaenge_mm, unit: 'mm' },
+    { label: 'Glasbreite', val: p.glasbreite_mm, unit: 'mm' },
+    { label: 'Glashöhe', val: p.glashoehe_mm, unit: 'mm' },
+  ].filter(f => f.val);
+  const masseGrid = document.getElementById('dMasseGrid');
+  masseGrid.innerHTML = masseFields.map(f => `<div class="detail-field"><div class="field-label">${f.label}</div><div class="field-val">${f.val} ${f.unit}</div></div>`).join('');
+  document.getElementById('dMasseSection').style.display = masseFields.length ? '' : 'none';
+
+  document.getElementById('dNotizen').textContent = p.notizen || '';
+  document.getElementById('dNotizenSection').style.display = p.notizen ? '' : 'none';
+
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetailModal() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+function editCurrentProduct() {
+  const p = allProducts.find(x => x.id === currentProductId);
+  if (!p) return;
+  closeDetailModal();
+  selectedImageFile = null;
+  currentImageUrl = p.bild_url || null;
+  document.getElementById('formTitle').textContent = 'Brille bearbeiten';
+  resetForm();
+  fillForm(p);
+  document.getElementById('formOverlay').classList.add('open');
+}
+
+async function deleteCurrentProduct() {
+  if (!confirm('Produkt wirklich löschen?')) return;
+  const { error } = await db.from('produkte').delete().eq('id', currentProductId);
+  if (error) { toast('Fehler: ' + error.message, 'error'); return; }
+  toast('Produkt gelöscht', 'success');
+  closeDetailModal();
+  await loadProducts();
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatCurrency(val) {
+  return Number(val).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+}
+function toast(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
