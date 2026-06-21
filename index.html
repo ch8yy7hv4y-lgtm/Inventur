@@ -1330,26 +1330,7 @@ function switchTab(tab) {
 // ── COCKPIT DATA ──────────────────────────────────────────────────────────────
 const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
-const EINNAHMEN = {
-  'Januar':   [['01.01.','Ladekabel',9],['03.01.','Mütze',6],['04.01.','Brille',9],['07.01.','Brille',13],['10.01.','Tommy Hilfiger Oberteil',25],['12.01.','2 Mützen',11.4],['19.01.','Ladekabel',5],['19.01.','Guess Handtasche',65],['22.01.','Kabel',9],['22.01.','Brille',9.5],['27.01.','Brille',7],['29.01.','Kabel',2.6]],
-  'Februar':  [['01.02.','RayBan Brille',45],['04.02.','Brille',7],['09.02.','Adidas Schuhe',90],['20.02.','3x Ladekabel',15]],
-  'März':     [['25.03.','Brille',11],['26.03.','Brille',9],['26.03.','Brille',8],['26.03.','Brille',11],['27.03.','Brille',12],['27.03.','Brille',16],['28.03.','Brillen',16.8],['28.03.','Brille',8],['28.03.','Brille',9],['29.03.','Brille',4],['29.03.','Brille',10],['30.03.','Brille',9],['30.03.','Brillen',28.9],['30.03.','Brille',7.8],['31.03.','Brille',12],['31.03.','Brillen',19],['31.03.','Brille',11],['31.03.','Brillen',22]],
-  'April':    [['02.04.','Adidas Schuhe',80],['03.04.','Brille',8],['03.04.','Kette',17],['04.04.','Brille',10],['04.04.','Brille',9],['04.04.','Brille',11],['05.04.','Brille',12],['05.04.','GG Brille',54],['05.04.','Brille',11],['05.04.','Brille',10],['06.04.','Brillen',18],['06.04.','Brille',8.8],['06.04.','Brille',7],['07.04.','Armband',14.4],['08.04.','Brillen',19.8],['09.04.','Brille',9],['09.04.','Brille',11],['09.04.','Brille',11],['10.04.','Brille',11],['10.04.','Brille',9],['10.04.','Brille',9],['10.04.','Brille',9],['11.04.','Brille',11],['11.04.','Brille',11],['11.04.','Brille',11],['11.04.','Brille',8.8],['11.04.','Brille',11],['12.04.','Brille',11],['12.04.','Brille',9.9],['12.04.','Brille',9],['13.04.','Brille',11],['13.04.','Brille',8],['15.04.','Brille',9],['15.04.','Brillen',19.8],['16.04.','Brille',8.5],['17.04.','Brille',8],['18.04.','Brille',11],['19.04.','Brille',9.5],['20.04.','Brille',9],['20.04.','Brille',11],['21.04.','Kette',9],['21.04.','Brille',7.5],['22.04.','Brille',11],['23.04.','Brillen',16],['25.04.','Brille',11],['25.04.','Brille',11],['26.04.','Brille',11],['26.04.','Brillen',16.5],['26.04.','Brille',11],['26.04.','Brille',9.9],['26.04.','Brille',10]],
-  'Mai':      [['01.05.','Brille',11],['01.05.','Brille',10],['01.05.','Brille',11],['01.05.','Brille',9],['01.05.','Brille',11],['01.05.','Brille',11],['01.05.','Brille',12],['01.05.','Brille',8.5],['01.05.','Brille',9],['01.05.','Brille',11],['01.05.','Brille',11],['01.05.','Brille',12],['01.05.','Brille',9],['02.05.','Brille',11],['02.05.','Brille',11],['02.05.','Brille',9],['03.05.','Guess Tasche',30],['03.05.','Brille',10],['03.05.','Brille',10],['04.05.','Brillen',18.9],['04.05.','Brille',9.9],['04.05.','Brillen',14],['04.05.','Brille',8.8],['05.05.','Brille',9],['05.05.','Brille',9],['08.05.','Brille',11],['08.05.','Brille',9],['09.05.','Brille',9],['10.05.','Brillen',19.8],['10.05.','Brille',9],['11.05.','Brillen',20.7],['11.05.','Brille',11],['14.05.','Brillen',15.5],['17.05.','Brille',10],['18.05.','Brille',9],['19.05.','Brille',9],['19.05.','Brille',11],['21.05.','RayBan Clubmaster Leo',55],['23.05.','Brille',9],['24.05.','Brille',8],['24.05.','Brille',8.5],['24.05.','Brille',12.9],['24.05.','Brille',11],['25.05.','Brille',9.9],['26.05.','Brille',12],['26.05.','Brille',8.8],['27.05.','Brille',11],['27.05.','Brille',7.2],['28.05.','Brille',12],['28.05.','Gucci Brille',99],['28.05.','Brille',11],['29.05.','Brillen',21.6],['30.05.','Brillen',28.9],['30.05.','Brille',10],['30.05.','Brille',8],['30.05.','Brille',8],['30.05.','Brillen',18],['30.05.','Brillen',23],['30.05.','Brille',10],['30.05.','Brillen',20.7],['30.05.','Brille',9],['31.05.','Brille',9],['31.05.','Brille',7],['31.05.','RayBan',40],['31.05.','Brille',8.5],['31.05.','Brille',9],['31.05.','RayBan',30]],
-  'Juni':     [['01.06.','Brille',8],['01.06.','Brille',9],['02.06.','Brille',8.8],['04.06.','Brille',8],['04.06.','RayBan Pilot',72],['05.06.','Brille',10],['06.06.','Ray-Ban',30],['07.06.','Brillen',17],['07.06.','GG Bag',300],['08.06.','Brille',8],['08.06.','Brille',11],['09.06.','RayBan',32],['09.06.','Ladekabel',6],['10.06.','Brille',11],['10.06.','Brille',7.2],['12.06.','Brille',8],['12.06.','Brille',12],['13.06.','Brille',8],['13.06.','Brille',9.9],['13.06.','Kabel',5],['13.06.','Brille',9],['13.06.','Brille',10],['13.06.','Tom Ford Brille',40],['14.06.','Brillen',21.6],['14.06.','Brille',8],['15.06.','Brille',11],['15.06.','Brille',11],['16.06.','Brille',8],['16.06.','Brille',11],['17.06.','Brille',9],['18.06.','Brille',8],['18.06.','Brillen',20.7],['18.06.','Brille',11],['18.06.','Prada Brille',95],['19.06.','RayBan Avatar',48],['19.06.','Brillen',16.5],['19.06.','Brille',7],['20.06.','Brille',11],['20.06.','Brille',8.3],['21.06.','Brille',12]]
-};
-
-const AUSGABEN = {
-  'Januar':   [['01.01.','Tommy Hilfiger Zipper Pink',14.79],['01.01.','Ray-Ban Clubmaster',24.59],['01.01.','Temu Bestellung',68.51],['02.01.','Pushes',4.96],['02.01.','Guess Handtasche',48],['06.01.','Pushes',6.45],['08.01.','Pushes',2.1],['12.01.','Post',4.19],['22.01.','Guess Tasche',19.49],['22.01.','Pushes',6.4],['28.01.','Pushes',6.6],['29.01.','Pushes',2.75],['31.01.','Pushes',3.09]],
-  'Februar':  [['01.02.','Brillen',27.56],['04.02.','Adidas Schuhe',63.44],['07.02.','Pushes',2.75],['07.02.','Pushes',3.8],['09.02.','Post',6.19],['15.02.','Adidas Grau',55.95],['15.02.','GG Brille',29.84]],
-  'März':     [['21.03.','Pushes',1.39],['21.03.','Pushes',2.06],['22.03.','Pushes',2.6],['25.03.','Pushes',2.6],['25.03.','Pushes',6.4],['25.03.','Pushes',4.32],['27.03.','Post',2.9],['27.03.','Post',2.9],['28.03.','Pushes',2.06],['28.03.','Pushes',3.09],['30.03.','Brillen Temu',42.47],['30.03.','Pushes',2.06]],
-  'April':    [['02.04.','Push',5.67],['02.04.','Push',3.09],['03.04.','Post',2.9],['03.04.','Push',1.14],['04.04.','Push',2.51],['04.04.','Push',2.48],['04.04.','Push',2.06],['05.04.','Pushes',3.35],['06.04.','Temu',30.11],['06.04.','Temu',11.6],['08.04.','Pushes',3.09],['09.04.','Pushes',5.85],['09.04.','Pushes',2.06],['09.04.','Pushes',2.51],['10.04.','Pushes',2.06],['11.04.','Pushes',3.09],['14.04.','Pushes',2.06],['16.04.','Pushes',5.85],['16.04.','Pushes',3.09],['16.04.','Temu',46.02],['18.04.','Pushes',2.06],['20.04.','Pushes',3.09],['21.04.','Versand',1.8],['23.04.','Pushes',5.67],['25.04.','Pushes',3.09]],
-  'Mai':      [['03.05.','Pushes',6.25],['09.05.','Temu',101.42],['09.05.','Pushes',6.25],['10.05.','Temu',46.73],['14.05.','Pushes',2.06],['16.05.','RayBan Clubmaster Leo',31.68],['16.05.','Pushes',2.06],['16.05.','RayBan Black',28.04],['16.05.','Gucci Brille Gold',65.45],['19.05.','Pushes',2.06],['21.05.','Pushes',5.9],['24.05.','Pushes',6.3],['24.05.','Pushes',5.06],['24.05.','RayBan',26.01],['24.05.','RayBan',27.22],['25.05.','RayBan Leo Damen',31.09],['25.05.','Post',2.9],['27.05.','Post',2.9],['27.05.','RayBan',22.79],['27.05.','GG Bag',238.59],['29.05.','Pushes',2.78],['30.05.','Post',2.9],['30.05.','Pushes',2.1]],
-  'Juni':     [['02.06.','Pushes',4.43],['05.06.','Pushes',5.99],['07.06.','Tom Ford Brille',23.25],['07.06.','RayBan Brille',31.65],['07.06.','Pushes',6.4],['07.06.','Prada Brille',77.69],['09.06.','RayBan Brille',17.49],['09.06.','Gucci Brille',99.39],['10.06.','Gucci Brille',95.2],['13.06.','Pushes',3.78],['13.06.','RayBan Aviator',23.09],['13.06.','Gucci Brille',77.41],['14.06.','Pushes',2.06],['18.06.','Pushes',4.85],['19.06.','Pushes',4.86],['21.06.','Pushes',3.63]]
-};
-
-const MONATSSUMMEN_E = { 'Januar':168.9,'Februar':157,'März':191.5,'April':681.4,'Mai':966.1,'Juni':957 };
-const MONATSSUMMEN_A = { 'Januar':208.83,'Februar':189.53,'März':73.46,'April':156.3,'Mai':668.54,'Juni':481.17 };
+const MONATSREIHENFOLGE = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
 // ── COCKPIT LOGIC ─────────────────────────────────────────────────────────────
 let cockpitMonth = 'Juni';
@@ -1436,12 +1417,12 @@ function fmt(val) {
   return Number(val).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
 }
 
-// ── CUSTOM ENTRIES (Supabase) ─────────────────────────────────────────────────
+// ── ALLE EINTRÄGE (Supabase) ──────────────────────────────────────────────────
 let customEntries = [];
 
 async function refreshCustomEntries() {
   try {
-    const { data, error } = await db.from('cockpit_eintraege').select('*').order('erstellt_am');
+    const { data, error } = await db.from('cockpit_transaktionen').select('*').order('erstellt_am');
     if (!error) customEntries = data || [];
   } catch {}
 }
@@ -1491,21 +1472,21 @@ async function deleteCustomEntry(id) {
 }
 
 function getMergedData(monat, typ) {
-  const base = (typ === 'einnahmen' ? EINNAHMEN[monat] : AUSGABEN[monat]) || [];
-  const custom = customEntries.filter(e => e.monat === monat && e.typ === typ);
+  const alle = customEntries.filter(e => e.monat === monat && e.typ === typ);
+  const base = alle.filter(e => e.ist_basis);
+  const custom = alle.filter(e => !e.ist_basis);
   return { base, custom };
 }
 
 function getMergedSum(monat, typ) {
-  const baseSum = (typ === 'einnahmen' ? MONATSSUMMEN_E[monat] : MONATSSUMMEN_A[monat]) || 0;
-  const custom = customEntries.filter(e => e.monat === monat && e.typ === typ);
-  return baseSum + custom.reduce((s, e) => s + Number(e.betrag), 0);
+  return customEntries
+    .filter(e => e.monat === monat && e.typ === typ)
+    .reduce((s, e) => s + Number(e.betrag), 0);
 }
 
 function getAllMonths() {
-  const base = Object.keys(MONATSSUMMEN_E);
-  const customMonths = customEntries.map(e => e.monat);
-  return [...new Set([...base, ...customMonths])];
+  const monate = [...new Set(customEntries.map(e => e.monat))];
+  return MONATSREIHENFOLGE.filter(m => monate.includes(m));
 }
 
 // ── RENDER mit Custom Entries ─────────────────────────────────────────────────
@@ -1521,12 +1502,12 @@ function renderTransactions() {
     return;
   }
 
-  const baseRows = base.map(([datum, produkt, preis]) =>
-    `<tr><td class="tx-date">${datum}</td><td>${esc(produkt)}</td><td class="tx-amount ${cls}">${fmt(preis)}</td><td></td></tr>`
+  const baseRows = base.map(e =>
+    `<tr><td class="tx-date">${esc(e.datum||'')}</td><td>${esc(e.produkt)}</td><td class="tx-amount ${cls}">${fmt(e.betrag)}</td><td></td></tr>`
   ).join('');
 
   const customRows = custom.map(e =>
-    `<tr class="entry-custom"><td class="tx-date">${esc(e.datum)}</td><td>${esc(e.produkt)} <span class="entry-tag ${cockpitView==='einnahmen'?'entry-tag-e':'entry-tag-a'}">Neu</span></td><td class="tx-amount ${cls}">${fmt(e.betrag)}</td><td><button class="btn-icon" onclick="deleteCustomEntry(${e.id})" title="Löschen">🗑️</button></td></tr>`
+    `<tr class="entry-custom"><td class="tx-date">${esc(e.datum||'')}</td><td>${esc(e.produkt)} <span class="entry-tag ${cockpitView==='einnahmen'?'entry-tag-e':'entry-tag-a'}">Neu</span></td><td class="tx-amount ${cls}">${fmt(e.betrag)}</td><td><button class="btn-icon" onclick="deleteCustomEntry('${e.id}')" title="Löschen">🗑️</button></td></tr>`
   ).join('');
 
   document.getElementById('txBody').innerHTML = baseRows + customRows;
