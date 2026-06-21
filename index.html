@@ -1324,7 +1324,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b, i) => {
     b.classList.toggle('active', (i === 0 && tab === 'inventur') || (i === 1 && tab === 'cockpit'));
   });
-  if (tab === 'cockpit') renderCockpit();
+  if (tab === 'cockpit') renderCockpit().catch(console.error);
 }
 
 // ── COCKPIT DATA ──────────────────────────────────────────────────────────────
@@ -1355,7 +1355,8 @@ const MONATSSUMMEN_A = { 'Januar':208.83,'Februar':189.53,'März':73.46,'April':
 let cockpitMonth = 'Juni';
 let cockpitView = 'einnahmen';
 
-function renderCockpit() {
+async function renderCockpit() {
+  await refreshCustomEntries();
   const monate = getAllMonths();
   const totalE = monate.reduce((s,m) => s + getMergedSum(m,'einnahmen'), 0);
   const totalA = monate.reduce((s,m) => s + getMergedSum(m,'ausgaben'), 0);
@@ -1435,14 +1436,14 @@ function fmt(val) {
   return Number(val).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
 }
 
-// ── CUSTOM ENTRIES (localStorage) ────────────────────────────────────────────
-const ENTRIES_KEY = 'cockpit_entries_v1';
+// ── CUSTOM ENTRIES (Supabase) ─────────────────────────────────────────────────
+let customEntries = [];
 
-function loadCustomEntries() {
-  try { return JSON.parse(localStorage.getItem(ENTRIES_KEY)) || []; } catch { return []; }
-}
-function saveCustomEntries(arr) {
-  localStorage.setItem(ENTRIES_KEY, JSON.stringify(arr));
+async function refreshCustomEntries() {
+  try {
+    const { data, error } = await db.from('cockpit_eintraege').select('*').order('erstellt_am');
+    if (!error) customEntries = data || [];
+  } catch {}
 }
 
 let entryType = 'einnahmen';
@@ -1465,42 +1466,45 @@ function setEntryType(t) {
   document.getElementById('entryTitle').textContent = t === 'einnahmen' ? '💰 Neue Einnahme' : '💸 Neue Ausgabe';
 }
 
-function saveEntry() {
+async function saveEntry() {
   const monat = document.getElementById('eMonat').value;
   const datum = document.getElementById('eDatum').value.trim() || '–';
   const produkt = document.getElementById('eProdukt').value.trim();
   const betrag = parseFloat(document.getElementById('eBetrag').value);
   if (!produkt) { toast('Bitte Produkt eingeben', 'error'); return; }
   if (!betrag || betrag <= 0) { toast('Bitte gültigen Betrag eingeben', 'error'); return; }
-  const entries = loadCustomEntries();
-  entries.push({ id: Date.now(), typ: entryType, monat, datum, produkt, betrag });
-  saveCustomEntries(entries);
+  const btn = document.querySelector('#entryOverlay .btn-primary');
+  btn.disabled = true; btn.textContent = '⏳ Speichern...';
+  const { error } = await db.from('cockpit_eintraege').insert([{ typ: entryType, monat, datum, produkt, betrag }]);
+  btn.disabled = false; btn.textContent = '💾 Speichern';
+  if (error) { toast('Fehler: ' + error.message, 'error'); return; }
   closeEntryModal();
   toast('Eintrag gespeichert ✓', 'success');
-  renderCockpit();
+  await renderCockpit();
 }
 
-function deleteCustomEntry(id) {
-  const entries = loadCustomEntries().filter(e => e.id !== id);
-  saveCustomEntries(entries);
-  renderCockpit();
+async function deleteCustomEntry(id) {
+  const { error } = await db.from('cockpit_eintraege').delete().eq('id', id);
+  if (error) { toast('Fehler: ' + error.message, 'error'); return; }
+  toast('Eintrag gelöscht', 'success');
+  await renderCockpit();
 }
 
 function getMergedData(monat, typ) {
   const base = (typ === 'einnahmen' ? EINNAHMEN[monat] : AUSGABEN[monat]) || [];
-  const custom = loadCustomEntries().filter(e => e.monat === monat && e.typ === typ);
+  const custom = customEntries.filter(e => e.monat === monat && e.typ === typ);
   return { base, custom };
 }
 
 function getMergedSum(monat, typ) {
   const baseSum = (typ === 'einnahmen' ? MONATSSUMMEN_E[monat] : MONATSSUMMEN_A[monat]) || 0;
-  const custom = loadCustomEntries().filter(e => e.monat === monat && e.typ === typ);
-  return baseSum + custom.reduce((s, e) => s + e.betrag, 0);
+  const custom = customEntries.filter(e => e.monat === monat && e.typ === typ);
+  return baseSum + custom.reduce((s, e) => s + Number(e.betrag), 0);
 }
 
 function getAllMonths() {
   const base = Object.keys(MONATSSUMMEN_E);
-  const customMonths = loadCustomEntries().map(e => e.monat);
+  const customMonths = customEntries.map(e => e.monat);
   return [...new Set([...base, ...customMonths])];
 }
 
