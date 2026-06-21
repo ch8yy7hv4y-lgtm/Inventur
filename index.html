@@ -1342,6 +1342,7 @@ async function renderCockpit() {
   const totalE = monate.reduce((s,m) => s + getMergedSum(m,'einnahmen'), 0);
   const totalA = monate.reduce((s,m) => s + getMergedSum(m,'ausgaben'), 0);
   const gewinn = totalE - totalA;
+  if (monate.length === 0) return;
   const bestMonat = monate.reduce((a,b) => (getMergedSum(a,'einnahmen')-getMergedSum(a,'ausgaben')) > (getMergedSum(b,'einnahmen')-getMergedSum(b,'ausgaben')) ? a : b);
   const bestGewinn = getMergedSum(bestMonat,'einnahmen') - getMergedSum(bestMonat,'ausgaben');
 
@@ -1369,8 +1370,8 @@ function renderChart(monate) {
     const short = m.slice(0,3);
     return `<div class="bar-group">
       <div class="bar-pair">
-        <div class="bar bar-e" style="height:${he}px;flex:1;" title="${m} Einnahmen: ${fmt(MONATSSUMMEN_E[m]||0)}"></div>
-        <div class="bar bar-a" style="height:${ha}px;flex:1;" title="${m} Ausgaben: ${fmt(MONATSSUMMEN_A[m]||0)}"></div>
+        <div class="bar bar-e" style="height:${he}px;flex:1;" title="${m} Einnahmen: ${fmt(getMergedSum(m,'einnahmen'))}"></div>
+        <div class="bar bar-a" style="height:${ha}px;flex:1;" title="${m} Ausgaben: ${fmt(getMergedSum(m,'ausgaben'))}"></div>
       </div>
       <div class="bar-label">${short}</div>
     </div>`;
