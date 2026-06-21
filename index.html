@@ -396,9 +396,198 @@
     .detail-grid { grid-template-columns: 1fr 1fr; }
     .form-row { grid-template-columns: 1fr; }
   }
+
+  /* LOGIN SCREEN */
+  .login-screen {
+    position: fixed; inset: 0; background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; padding: 1.5rem;
+  }
+  .login-box {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius); padding: 2rem 1.75rem; width: 100%; max-width: 360px;
+  }
+  .login-logo { font-size: 2.5rem; text-align: center; margin-bottom: 0.5rem; }
+  .login-title { color: white; font-size: 1.2rem; font-weight: 700; text-align: center; margin-bottom: 0.25rem; }
+  .login-sub { color: rgba(255,255,255,0.45); font-size: 0.82rem; text-align: center; margin-bottom: 1.75rem; }
+  .login-input {
+    width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+    color: white; font-size: 1rem; font-family: inherit; outline: none;
+    margin-bottom: 1rem; letter-spacing: 0.05em;
+  }
+  .login-input::placeholder { color: rgba(255,255,255,0.3); }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; padding: 0.75rem; background: var(--accent); color: var(--primary);
+    border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .login-btn:hover { opacity: 0.88; }
+  .login-error { color: #ff6b6b; font-size: 0.82rem; text-align: center; margin-top: 0.75rem; display: none; }
+  .login-shake { animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+  /* ENTRY MODAL */
+  .entry-fab {
+    position: fixed; bottom: 5rem; right: 1.25rem; z-index: 150;
+    width: 52px; height: 52px; border-radius: 50%; background: var(--primary);
+    color: white; border: none; font-size: 1.6rem; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: none; align-items: center; justify-content: center;
+    transition: transform 0.15s;
+  }
+  .entry-fab:hover { transform: scale(1.08); }
+  .entry-fab.visible { display: flex; }
+  .entry-tag { font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+  .entry-tag-e { background: #d1fae5; color: #065f46; }
+  .entry-tag-a { background: #fee2e2; color: #991b1b; }
+  .entry-custom { border-left: 3px solid var(--accent); }
+  .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; padding: 2px 6px; }
+  .btn-icon:hover { color: var(--danger); }
+
+  /* TABS */
+  .tab-bar {
+    background: var(--primary);
+    display: flex;
+    gap: 0;
+    padding: 0 1rem;
+    border-bottom: none;
+  }
+  .tab-btn {
+    color: rgba(255,255,255,0.55);
+    background: none;
+    border: none;
+    padding: 0.7rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.85); }
+
+  /* COCKPIT */
+  .cockpit { padding: 0 1.25rem 6rem; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; padding-top: 1rem; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+  .kpi-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .kpi-value { font-size: 1.35rem; font-weight: 700; }
+  .kpi-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .kpi-green { color: #16a34a; }
+  .kpi-red { color: #dc2626; }
+
+  .cockpit-section { margin-bottom: 1.25rem; }
+  .cockpit-section-title {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  /* BAR CHART */
+  .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; overflow-x: auto; }
+  .chart-bars { display: flex; gap: 6px; align-items: flex-end; min-height: 140px; padding-bottom: 28px; position: relative; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; min-width: 38px; }
+  .bar-pair { display: flex; gap: 3px; align-items: flex-end; width: 100%; }
+  .bar { border-radius: 4px 4px 0 0; transition: opacity 0.15s; cursor: default; min-width: 14px; }
+  .bar-e { background: var(--accent); }
+  .bar-a { background: #dc2626; opacity: 0.7; }
+  .bar-label { font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 4px; }
+  .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.78rem; color: var(--text-muted); justify-content: center; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+
+  /* MONTH SELECTOR */
+  .month-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .month-tab {
+    padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface); font-size: 0.82rem; cursor: pointer; font-weight: 500;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .month-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* TRANSACTIONS TABLE */
+  .tx-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .tx-table th { text-align: left; padding: 6px 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  .tx-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  .tx-table tr:last-child td { border-bottom: none; }
+  .tx-table .tx-amount { font-weight: 600; text-align: right; }
+  .tx-table .tx-date { color: var(--text-muted); font-size: 0.8rem; }
+  .tx-neg { color: #dc2626; }
+  .tx-pos { color: #16a34a; }
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-summary { padding: 0.75rem 0.75rem; border-top: 2px solid var(--border); display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; }
+
+  @media (max-width: 480px) {
+    .kpi-grid { gap: 0.5rem; }
+    .cockpit { padding: 0 0.75rem 6rem; }
+  }
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🕶️</div>
+    <div class="login-title">Mein Shop</div>
+    <div class="login-sub">Privater Bereich — Passwort erforderlich</div>
+    <input class="login-input" type="password" id="loginPwd" placeholder="Passwort eingeben" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Einloggen</button>
+    <div class="login-error" id="loginError">❌ Falsches Passwort</div>
+  </div>
+</div>
+
+<!-- ENTRY MODAL -->
+<div class="overlay" id="entryOverlay">
+  <div class="modal" style="margin:auto;">
+    <div class="modal-header">
+      <h2 id="entryTitle">Neuer Eintrag</h2>
+      <button class="btn-close" onclick="closeEntryModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Typ</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="month-tab active" id="etypEin" onclick="setEntryType('einnahmen')">💰 Einnahme</button>
+          <button class="month-tab" id="etypAus" onclick="setEntryType('ausgaben')">💸 Ausgabe</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Monat</label>
+            <select id="eMonat">
+              <option>Januar</option><option>Februar</option><option>März</option>
+              <option>April</option><option>Mai</option><option>Juni</option>
+              <option>Juli</option><option>August</option><option>September</option>
+              <option>Oktober</option><option>November</option><option>Dezember</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Datum (z.B. 15.06.)</label>
+            <input type="text" id="eDatum" placeholder="TT.MM.">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Produkt / Beschreibung</label>
+          <input type="text" id="eProdukt" placeholder="z.B. RayBan Brille">
+        </div>
+        <div class="form-group">
+          <label>Betrag (€)</label>
+          <input type="number" id="eBetrag" step="0.01" min="0" placeholder="0.00">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEntryModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveEntry()">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB BUTTON -->
+<button class="entry-fab" id="entryFab" onclick="openEntryModal()" title="Eintrag hinzufügen">+</button>
 
 <!-- CONFIG MODAL -->
 <div class="overlay" id="configOverlay">
@@ -479,12 +668,16 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
 
 <!-- HEADER -->
 <header class="header">
-  <h1><span>🕶️</span> Sonnenbrillen Inventur</h1>
+  <h1><span>🕶️</span> Mein Shop</h1>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn-add" onclick="openAddModal()">+ Neu</button>
+    <button class="btn-add" id="btnNeu" onclick="openAddModal()" style="display:none;">+ Neu</button>
     <button onclick="openConfigOverlay()" style="background:none;border:none;color:white;cursor:pointer;font-size:1.1rem;padding:4px;" title="Einstellungen">⚙️</button>
   </div>
 </header>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('inventur')">🕶️ Inventur</button>
+  <button class="tab-btn" onclick="switchTab('cockpit')">📊 Sales Cockpit</button>
+</div>
 
 <!-- MAIN -->
 <main id="mainApp" style="display:none;">
@@ -689,6 +882,64 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
   </div>
 </div>
 
+<!-- COCKPIT -->
+<section id="cockpitApp" style="display:none;">
+  <div class="cockpit">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Einnahmen YTD</div>
+        <div class="kpi-value kpi-green" id="kpiEin">–</div>
+        <div class="kpi-sub" id="kpiEinSub"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ausgaben YTD</div>
+        <div class="kpi-value kpi-red" id="kpiAus">–</div>
+        <div class="kpi-sub" id="kpiAusSub"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Gewinn YTD</div>
+        <div class="kpi-value" id="kpiGew">–</div>
+        <div class="kpi-sub" id="kpiGewSub"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Bester Monat</div>
+        <div class="kpi-value" id="kpiBest">–</div>
+        <div class="kpi-sub" id="kpiBestSub"></div>
+      </div>
+    </div>
+
+    <div class="cockpit-section">
+      <div class="cockpit-section-title">📈 Einnahmen vs. Ausgaben</div>
+      <div class="chart-wrap">
+        <div class="chart-bars" id="chartBars"></div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:var(--accent)"></span>Einnahmen</span>
+          <span><span class="legend-dot" style="background:#dc2626;opacity:.7"></span>Ausgaben</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cockpit-section">
+      <div class="cockpit-section-title">📋 Monatsdetail</div>
+      <div class="month-tabs" id="monthTabs"></div>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+        <button class="month-tab active" id="viewEin" onclick="setView('einnahmen')">Einnahmen</button>
+        <button class="month-tab" id="viewAus" onclick="setView('ausgaben')">Ausgaben</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tx-table">
+          <thead><tr><th>Datum</th><th>Produkt</th><th style="text-align:right">Betrag</th></tr></thead>
+          <tbody id="txBody"></tbody>
+        </table>
+        <div class="table-summary">
+          <span id="txCount"></span>
+          <span id="txTotal"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -711,17 +962,6 @@ function saveConfigToStorage(url, key) {
 const DEFAULT_URL = 'https://huxpxqmrgmcjzbrlcivz.supabase.co';
 const DEFAULT_KEY = 'sb_publishable_CAshZOldapU61KwQRV8NbQ_FEeBwHie';
 
-async function initApp() {
-  document.getElementById('mainApp').style.display = '';
-  const cfg = loadConfig() || { url: DEFAULT_URL, key: DEFAULT_KEY };
-  try {
-    db = window.supabase.createClient(cfg.url, cfg.key);
-    await loadProducts();
-  } catch (e) {
-    document.getElementById('productGrid').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><div style="font-weight:600;margin-bottom:4px;">Verbindungsfehler</div><div style="font-size:0.88rem;">Bitte Einstellungen prüfen (⚙️)</div></div>';
-    console.error(e);
-  }
-}
 
 function openConfigOverlay() { showConfigOverlay(); }
 
@@ -1034,8 +1274,276 @@ function toast(msg, type = '') {
   setTimeout(() => el.remove(), 3500);
 }
 
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+const PWD_HASH = 'a660104dabcb49c04dcdfb0730f3e08cfcc57d23b2cd53849f0ad9839786978c';
+const SESSION_KEY = 'shop_auth_v1';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const pwd = document.getElementById('loginPwd').value;
+  if (!pwd) return;
+  const hash = await sha256(pwd);
+  if (hash === PWD_HASH) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    startApp();
+  } else {
+    const box = document.getElementById('loginError');
+    const input = document.getElementById('loginPwd');
+    box.style.display = 'block';
+    input.value = '';
+    input.classList.remove('login-shake');
+    void input.offsetWidth;
+    input.classList.add('login-shake');
+    input.focus();
+  }
+}
+
+function checkAuth() {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('loginScreen').style.display = 'none';
+    startApp();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    setTimeout(() => document.getElementById('loginPwd').focus(), 100);
+  }
+}
+
+// ── TAB NAVIGATION ───────────────────────────────────────────────────────────
+let activeTab = 'inventur';
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('mainApp').style.display = tab === 'inventur' ? '' : 'none';
+  document.getElementById('cockpitApp').style.display = tab === 'cockpit' ? '' : 'none';
+  document.getElementById('btnNeu').style.display = tab === 'inventur' ? '' : 'none';
+  document.getElementById('entryFab').classList.toggle('visible', tab === 'cockpit');
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'inventur') || (i === 1 && tab === 'cockpit'));
+  });
+  if (tab === 'cockpit') renderCockpit();
+}
+
+// ── COCKPIT DATA ──────────────────────────────────────────────────────────────
+const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+const EINNAHMEN = {
+  'Januar':   [['01.01.','Ladekabel',9],['03.01.','Mütze',6],['04.01.','Brille',9],['07.01.','Brille',13],['10.01.','Tommy Hilfiger Oberteil',25],['12.01.','2 Mützen',11.4],['19.01.','Ladekabel',5],['19.01.','Guess Handtasche',65],['22.01.','Kabel',9],['22.01.','Brille',9.5],['27.01.','Brille',7],['29.01.','Kabel',2.6]],
+  'Februar':  [['01.02.','RayBan Brille',45],['04.02.','Brille',7],['09.02.','Adidas Schuhe',90],['20.02.','3x Ladekabel',15]],
+  'März':     [['25.03.','Brille',11],['26.03.','Brille',9],['26.03.','Brille',8],['26.03.','Brille',11],['27.03.','Brille',12],['27.03.','Brille',16],['28.03.','Brillen',16.8],['28.03.','Brille',8],['28.03.','Brille',9],['29.03.','Brille',4],['29.03.','Brille',10],['30.03.','Brille',9],['30.03.','Brillen',28.9],['30.03.','Brille',7.8],['31.03.','Brille',12],['31.03.','Brillen',19],['31.03.','Brille',11],['31.03.','Brillen',22]],
+  'April':    [['02.04.','Adidas Schuhe',80],['03.04.','Brille',8],['03.04.','Kette',17],['04.04.','Brille',10],['04.04.','Brille',9],['04.04.','Brille',11],['05.04.','Brille',12],['05.04.','GG Brille',54],['05.04.','Brille',11],['05.04.','Brille',10],['06.04.','Brillen',18],['06.04.','Brille',8.8],['06.04.','Brille',7],['07.04.','Armband',14.4],['08.04.','Brillen',19.8],['09.04.','Brille',9],['09.04.','Brille',11],['09.04.','Brille',11],['10.04.','Brille',11],['10.04.','Brille',9],['10.04.','Brille',9],['10.04.','Brille',9],['11.04.','Brille',11],['11.04.','Brille',11],['11.04.','Brille',11],['11.04.','Brille',8.8],['11.04.','Brille',11],['12.04.','Brille',11],['12.04.','Brille',9.9],['12.04.','Brille',9],['13.04.','Brille',11],['13.04.','Brille',8],['15.04.','Brille',9],['15.04.','Brillen',19.8],['16.04.','Brille',8.5],['17.04.','Brille',8],['18.04.','Brille',11],['19.04.','Brille',9.5],['20.04.','Brille',9],['20.04.','Brille',11],['21.04.','Kette',9],['21.04.','Brille',7.5],['22.04.','Brille',11],['23.04.','Brillen',16],['25.04.','Brille',11],['25.04.','Brille',11],['26.04.','Brille',11],['26.04.','Brillen',16.5],['26.04.','Brille',11],['26.04.','Brille',9.9],['26.04.','Brille',10]],
+  'Mai':      [['01.05.','Brille',11],['01.05.','Brille',10],['01.05.','Brille',11],['01.05.','Brille',9],['01.05.','Brille',11],['01.05.','Brille',11],['01.05.','Brille',12],['01.05.','Brille',8.5],['01.05.','Brille',9],['01.05.','Brille',11],['01.05.','Brille',11],['01.05.','Brille',12],['01.05.','Brille',9],['02.05.','Brille',11],['02.05.','Brille',11],['02.05.','Brille',9],['03.05.','Guess Tasche',30],['03.05.','Brille',10],['03.05.','Brille',10],['04.05.','Brillen',18.9],['04.05.','Brille',9.9],['04.05.','Brillen',14],['04.05.','Brille',8.8],['05.05.','Brille',9],['05.05.','Brille',9],['08.05.','Brille',11],['08.05.','Brille',9],['09.05.','Brille',9],['10.05.','Brillen',19.8],['10.05.','Brille',9],['11.05.','Brillen',20.7],['11.05.','Brille',11],['14.05.','Brillen',15.5],['17.05.','Brille',10],['18.05.','Brille',9],['19.05.','Brille',9],['19.05.','Brille',11],['21.05.','RayBan Clubmaster Leo',55],['23.05.','Brille',9],['24.05.','Brille',8],['24.05.','Brille',8.5],['24.05.','Brille',12.9],['24.05.','Brille',11],['25.05.','Brille',9.9],['26.05.','Brille',12],['26.05.','Brille',8.8],['27.05.','Brille',11],['27.05.','Brille',7.2],['28.05.','Brille',12],['28.05.','Gucci Brille',99],['28.05.','Brille',11],['29.05.','Brillen',21.6],['30.05.','Brillen',28.9],['30.05.','Brille',10],['30.05.','Brille',8],['30.05.','Brille',8],['30.05.','Brillen',18],['30.05.','Brillen',23],['30.05.','Brille',10],['30.05.','Brillen',20.7],['30.05.','Brille',9],['31.05.','Brille',9],['31.05.','Brille',7],['31.05.','RayBan',40],['31.05.','Brille',8.5],['31.05.','Brille',9],['31.05.','RayBan',30]],
+  'Juni':     [['01.06.','Brille',8],['01.06.','Brille',9],['02.06.','Brille',8.8],['04.06.','Brille',8],['04.06.','RayBan Pilot',72],['05.06.','Brille',10],['06.06.','Ray-Ban',30],['07.06.','Brillen',17],['07.06.','GG Bag',300],['08.06.','Brille',8],['08.06.','Brille',11],['09.06.','RayBan',32],['09.06.','Ladekabel',6],['10.06.','Brille',11],['10.06.','Brille',7.2],['12.06.','Brille',8],['12.06.','Brille',12],['13.06.','Brille',8],['13.06.','Brille',9.9],['13.06.','Kabel',5],['13.06.','Brille',9],['13.06.','Brille',10],['13.06.','Tom Ford Brille',40],['14.06.','Brillen',21.6],['14.06.','Brille',8],['15.06.','Brille',11],['15.06.','Brille',11],['16.06.','Brille',8],['16.06.','Brille',11],['17.06.','Brille',9],['18.06.','Brille',8],['18.06.','Brillen',20.7],['18.06.','Brille',11],['18.06.','Prada Brille',95],['19.06.','RayBan Avatar',48],['19.06.','Brillen',16.5],['19.06.','Brille',7],['20.06.','Brille',11],['20.06.','Brille',8.3],['21.06.','Brille',12]]
+};
+
+const AUSGABEN = {
+  'Januar':   [['01.01.','Tommy Hilfiger Zipper Pink',14.79],['01.01.','Ray-Ban Clubmaster',24.59],['01.01.','Temu Bestellung',68.51],['02.01.','Pushes',4.96],['02.01.','Guess Handtasche',48],['06.01.','Pushes',6.45],['08.01.','Pushes',2.1],['12.01.','Post',4.19],['22.01.','Guess Tasche',19.49],['22.01.','Pushes',6.4],['28.01.','Pushes',6.6],['29.01.','Pushes',2.75],['31.01.','Pushes',3.09]],
+  'Februar':  [['01.02.','Brillen',27.56],['04.02.','Adidas Schuhe',63.44],['07.02.','Pushes',2.75],['07.02.','Pushes',3.8],['09.02.','Post',6.19],['15.02.','Adidas Grau',55.95],['15.02.','GG Brille',29.84]],
+  'März':     [['21.03.','Pushes',1.39],['21.03.','Pushes',2.06],['22.03.','Pushes',2.6],['25.03.','Pushes',2.6],['25.03.','Pushes',6.4],['25.03.','Pushes',4.32],['27.03.','Post',2.9],['27.03.','Post',2.9],['28.03.','Pushes',2.06],['28.03.','Pushes',3.09],['30.03.','Brillen Temu',42.47],['30.03.','Pushes',2.06]],
+  'April':    [['02.04.','Push',5.67],['02.04.','Push',3.09],['03.04.','Post',2.9],['03.04.','Push',1.14],['04.04.','Push',2.51],['04.04.','Push',2.48],['04.04.','Push',2.06],['05.04.','Pushes',3.35],['06.04.','Temu',30.11],['06.04.','Temu',11.6],['08.04.','Pushes',3.09],['09.04.','Pushes',5.85],['09.04.','Pushes',2.06],['09.04.','Pushes',2.51],['10.04.','Pushes',2.06],['11.04.','Pushes',3.09],['14.04.','Pushes',2.06],['16.04.','Pushes',5.85],['16.04.','Pushes',3.09],['16.04.','Temu',46.02],['18.04.','Pushes',2.06],['20.04.','Pushes',3.09],['21.04.','Versand',1.8],['23.04.','Pushes',5.67],['25.04.','Pushes',3.09]],
+  'Mai':      [['03.05.','Pushes',6.25],['09.05.','Temu',101.42],['09.05.','Pushes',6.25],['10.05.','Temu',46.73],['14.05.','Pushes',2.06],['16.05.','RayBan Clubmaster Leo',31.68],['16.05.','Pushes',2.06],['16.05.','RayBan Black',28.04],['16.05.','Gucci Brille Gold',65.45],['19.05.','Pushes',2.06],['21.05.','Pushes',5.9],['24.05.','Pushes',6.3],['24.05.','Pushes',5.06],['24.05.','RayBan',26.01],['24.05.','RayBan',27.22],['25.05.','RayBan Leo Damen',31.09],['25.05.','Post',2.9],['27.05.','Post',2.9],['27.05.','RayBan',22.79],['27.05.','GG Bag',238.59],['29.05.','Pushes',2.78],['30.05.','Post',2.9],['30.05.','Pushes',2.1]],
+  'Juni':     [['02.06.','Pushes',4.43],['05.06.','Pushes',5.99],['07.06.','Tom Ford Brille',23.25],['07.06.','RayBan Brille',31.65],['07.06.','Pushes',6.4],['07.06.','Prada Brille',77.69],['09.06.','RayBan Brille',17.49],['09.06.','Gucci Brille',99.39],['10.06.','Gucci Brille',95.2],['13.06.','Pushes',3.78],['13.06.','RayBan Aviator',23.09],['13.06.','Gucci Brille',77.41],['14.06.','Pushes',2.06],['18.06.','Pushes',4.85],['19.06.','Pushes',4.86],['21.06.','Pushes',3.63]]
+};
+
+const MONATSSUMMEN_E = { 'Januar':168.9,'Februar':157,'März':191.5,'April':681.4,'Mai':966.1,'Juni':957 };
+const MONATSSUMMEN_A = { 'Januar':208.83,'Februar':189.53,'März':73.46,'April':156.3,'Mai':668.54,'Juni':481.17 };
+
+// ── COCKPIT LOGIC ─────────────────────────────────────────────────────────────
+let cockpitMonth = 'Juni';
+let cockpitView = 'einnahmen';
+
+function renderCockpit() {
+  const monate = getAllMonths();
+  const totalE = monate.reduce((s,m) => s + getMergedSum(m,'einnahmen'), 0);
+  const totalA = monate.reduce((s,m) => s + getMergedSum(m,'ausgaben'), 0);
+  const gewinn = totalE - totalA;
+  const bestMonat = monate.reduce((a,b) => (getMergedSum(a,'einnahmen')-getMergedSum(a,'ausgaben')) > (getMergedSum(b,'einnahmen')-getMergedSum(b,'ausgaben')) ? a : b);
+  const bestGewinn = getMergedSum(bestMonat,'einnahmen') - getMergedSum(bestMonat,'ausgaben');
+
+  document.getElementById('kpiEin').textContent = fmt(totalE);
+  document.getElementById('kpiEinSub').textContent = monate.length + ' Monate';
+  document.getElementById('kpiAus').textContent = fmt(totalA);
+  document.getElementById('kpiAusSub').textContent = monate.length + ' Monate';
+  document.getElementById('kpiGew').textContent = fmt(gewinn);
+  document.getElementById('kpiGew').className = 'kpi-value ' + (gewinn >= 0 ? 'kpi-green' : 'kpi-red');
+  document.getElementById('kpiGewSub').textContent = 'Marge: ' + Math.round(gewinn/totalE*100) + '%';
+  document.getElementById('kpiBest').textContent = bestMonat;
+  document.getElementById('kpiBestSub').textContent = '+' + fmt(bestGewinn) + ' Gewinn';
+
+  renderChart(monate);
+  renderMonthTabs(monate);
+  renderTransactions();
+}
+
+function renderChart(monate) {
+  const maxVal = Math.max(...monate.map(m => Math.max(getMergedSum(m,'einnahmen'), getMergedSum(m,'ausgaben'))));
+  const H = 120;
+  document.getElementById('chartBars').innerHTML = monate.map(m => {
+    const he = Math.round((getMergedSum(m,'einnahmen')/maxVal)*H);
+    const ha = Math.round((getMergedSum(m,'ausgaben')/maxVal)*H);
+    const short = m.slice(0,3);
+    return `<div class="bar-group">
+      <div class="bar-pair">
+        <div class="bar bar-e" style="height:${he}px;flex:1;" title="${m} Einnahmen: ${fmt(MONATSSUMMEN_E[m]||0)}"></div>
+        <div class="bar bar-a" style="height:${ha}px;flex:1;" title="${m} Ausgaben: ${fmt(MONATSSUMMEN_A[m]||0)}"></div>
+      </div>
+      <div class="bar-label">${short}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMonthTabs(monate) {
+  document.getElementById('monthTabs').innerHTML = monate.map(m =>
+    `<button class="month-tab ${m===cockpitMonth?'active':''}" onclick="selectMonth('${m}')">${m.slice(0,3)}</button>`
+  ).join('');
+}
+
+function selectMonth(m) {
+  cockpitMonth = m;
+  document.querySelectorAll('#monthTabs .month-tab').forEach(b => b.classList.toggle('active', b.textContent === m.slice(0,3)));
+  renderTransactions();
+}
+
+function setView(v) {
+  cockpitView = v;
+  document.getElementById('viewEin').classList.toggle('active', v==='einnahmen');
+  document.getElementById('viewAus').classList.toggle('active', v==='ausgaben');
+  renderTransactions();
+}
+
+function renderTransactions() {
+  const data = cockpitView === 'einnahmen' ? EINNAHMEN[cockpitMonth] : AUSGABEN[cockpitMonth];
+  const summe = cockpitView === 'einnahmen' ? MONATSSUMMEN_E[cockpitMonth] : MONATSSUMMEN_A[cockpitMonth];
+  if (!data) {
+    document.getElementById('txBody').innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Keine Daten für diesen Monat</td></tr>';
+    document.getElementById('txCount').textContent = '';
+    document.getElementById('txTotal').textContent = '';
+    return;
+  }
+  const cls = cockpitView === 'ausgaben' ? 'tx-neg' : 'tx-pos';
+  document.getElementById('txBody').innerHTML = data.map(([datum, produkt, preis]) =>
+    `<tr><td class="tx-date">${datum}</td><td>${esc(produkt)}</td><td class="tx-amount ${cls}">${fmt(preis)}</td></tr>`
+  ).join('');
+  document.getElementById('txCount').textContent = data.length + ' Positionen';
+  document.getElementById('txTotal').textContent = fmt(summe || 0);
+}
+
+function fmt(val) {
+  return Number(val).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
+}
+
+// ── CUSTOM ENTRIES (localStorage) ────────────────────────────────────────────
+const ENTRIES_KEY = 'cockpit_entries_v1';
+
+function loadCustomEntries() {
+  try { return JSON.parse(localStorage.getItem(ENTRIES_KEY)) || []; } catch { return []; }
+}
+function saveCustomEntries(arr) {
+  localStorage.setItem(ENTRIES_KEY, JSON.stringify(arr));
+}
+
+let entryType = 'einnahmen';
+
+function openEntryModal() {
+  entryType = cockpitView;
+  document.getElementById('eMonat').value = cockpitMonth;
+  document.getElementById('eDatum').value = '';
+  document.getElementById('eProdukt').value = '';
+  document.getElementById('eBetrag').value = '';
+  setEntryType(entryType);
+  document.getElementById('entryOverlay').classList.add('open');
+}
+function closeEntryModal() { document.getElementById('entryOverlay').classList.remove('open'); }
+
+function setEntryType(t) {
+  entryType = t;
+  document.getElementById('etypEin').classList.toggle('active', t === 'einnahmen');
+  document.getElementById('etypAus').classList.toggle('active', t === 'ausgaben');
+  document.getElementById('entryTitle').textContent = t === 'einnahmen' ? '💰 Neue Einnahme' : '💸 Neue Ausgabe';
+}
+
+function saveEntry() {
+  const monat = document.getElementById('eMonat').value;
+  const datum = document.getElementById('eDatum').value.trim() || '–';
+  const produkt = document.getElementById('eProdukt').value.trim();
+  const betrag = parseFloat(document.getElementById('eBetrag').value);
+  if (!produkt) { toast('Bitte Produkt eingeben', 'error'); return; }
+  if (!betrag || betrag <= 0) { toast('Bitte gültigen Betrag eingeben', 'error'); return; }
+  const entries = loadCustomEntries();
+  entries.push({ id: Date.now(), typ: entryType, monat, datum, produkt, betrag });
+  saveCustomEntries(entries);
+  closeEntryModal();
+  toast('Eintrag gespeichert ✓', 'success');
+  renderCockpit();
+}
+
+function deleteCustomEntry(id) {
+  const entries = loadCustomEntries().filter(e => e.id !== id);
+  saveCustomEntries(entries);
+  renderCockpit();
+}
+
+function getMergedData(monat, typ) {
+  const base = (typ === 'einnahmen' ? EINNAHMEN[monat] : AUSGABEN[monat]) || [];
+  const custom = loadCustomEntries().filter(e => e.monat === monat && e.typ === typ);
+  return { base, custom };
+}
+
+function getMergedSum(monat, typ) {
+  const baseSum = (typ === 'einnahmen' ? MONATSSUMMEN_E[monat] : MONATSSUMMEN_A[monat]) || 0;
+  const custom = loadCustomEntries().filter(e => e.monat === monat && e.typ === typ);
+  return baseSum + custom.reduce((s, e) => s + e.betrag, 0);
+}
+
+function getAllMonths() {
+  const base = Object.keys(MONATSSUMMEN_E);
+  const customMonths = loadCustomEntries().map(e => e.monat);
+  return [...new Set([...base, ...customMonths])];
+}
+
+// ── RENDER mit Custom Entries ─────────────────────────────────────────────────
+function renderTransactions() {
+  const { base, custom } = getMergedData(cockpitMonth, cockpitView);
+  const summe = getMergedSum(cockpitMonth, cockpitView);
+  const cls = cockpitView === 'ausgaben' ? 'tx-neg' : 'tx-pos';
+
+  if (!base.length && !custom.length) {
+    document.getElementById('txBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Keine Daten — klicke + um einen Eintrag hinzuzufügen</td></tr>';
+    document.getElementById('txCount').textContent = '';
+    document.getElementById('txTotal').textContent = '';
+    return;
+  }
+
+  const baseRows = base.map(([datum, produkt, preis]) =>
+    `<tr><td class="tx-date">${datum}</td><td>${esc(produkt)}</td><td class="tx-amount ${cls}">${fmt(preis)}</td><td></td></tr>`
+  ).join('');
+
+  const customRows = custom.map(e =>
+    `<tr class="entry-custom"><td class="tx-date">${esc(e.datum)}</td><td>${esc(e.produkt)} <span class="entry-tag ${cockpitView==='einnahmen'?'entry-tag-e':'entry-tag-a'}">Neu</span></td><td class="tx-amount ${cls}">${fmt(e.betrag)}</td><td><button class="btn-icon" onclick="deleteCustomEntry(${e.id})" title="Löschen">🗑️</button></td></tr>`
+  ).join('');
+
+  document.getElementById('txBody').innerHTML = baseRows + customRows;
+  document.getElementById('txCount').textContent = (base.length + custom.length) + ' Positionen';
+  document.getElementById('txTotal').textContent = fmt(summe);
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', initApp);
+async function startApp() {
+  document.getElementById('mainApp').style.display = '';
+  document.getElementById('btnNeu').style.display = '';
+  const cfg = loadConfig() || { url: DEFAULT_URL, key: DEFAULT_KEY };
+  try {
+    db = window.supabase.createClient(cfg.url, cfg.key);
+    await loadProducts();
+  } catch (e) {
+    document.getElementById('productGrid').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><div style="font-weight:600;margin-bottom:4px;">Verbindungsfehler</div><div style="font-size:0.88rem;">Bitte Einstellungen prüfen (⚙️)</div></div>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', checkAuth);
 </script>
 </body>
 </html>
