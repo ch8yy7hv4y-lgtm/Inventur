@@ -763,6 +763,9 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
     <select class="filter-select" id="filterMarke" onchange="filterProducts()">
       <option value="">Alle Marken</option>
     </select>
+    <select class="filter-select" id="filterFarbe" onchange="filterProducts()">
+      <option value="">Alle Farben</option>
+    </select>
   </div>
 
   <div class="stats" id="statsBar">
@@ -818,7 +821,9 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
         <div class="form-row">
           <div class="form-group">
             <label>Farbe</label>
-            <input type="text" id="fFarbe" placeholder="z.B. Schwarz/Gold">
+            <select id="fFarbe">
+              <option value="">— Farbe wählen —</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Material</label>
@@ -1067,6 +1072,7 @@ async function loadProducts() {
   if (error) { toast('Fehler beim Laden: ' + error.message, 'error'); return; }
   allProducts = data || [];
   updateMarkenFilter();
+  await loadFarben();
   renderProducts(allProducts);
   updateStats(allProducts);
 }
@@ -1079,18 +1085,32 @@ function updateMarkenFilter() {
   sel.value = current;
 }
 
+let allFarben = [];
+
+async function loadFarben() {
+  const { data } = await db.from('farben').select('name,hex').order('name');
+  allFarben = data || [];
+  const formSel = document.getElementById('fFarbe');
+  const filterSel = document.getElementById('filterFarbe');
+  const opts = allFarben.map(f => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join('');
+  formSel.innerHTML = '<option value="">— Farbe wählen —</option>' + opts;
+  filterSel.innerHTML = '<option value="">Alle Farben</option>' + opts;
+}
+
 function filterProducts() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const status = document.getElementById('filterStatus').value;
   const marke = document.getElementById('filterMarke').value;
+  const farbe = document.getElementById('filterFarbe').value;
   const filtered = allProducts.filter(p => {
     const matchQ = !q || [p.name, p.marke, p.modell, p.farbe].some(v => v && v.toLowerCase().includes(q));
     const matchM = !marke || p.marke === marke;
+    const matchF = !farbe || p.farbe === farbe;
     let matchS = true;
     if (status === 'ok') matchS = p.menge > 5;
     if (status === 'low') matchS = p.menge > 0 && p.menge <= 5;
     if (status === 'out') matchS = p.menge === 0 || p.menge === null;
-    return matchQ && matchM && matchS;
+    return matchQ && matchM && matchF && matchS;
   });
   renderProducts(filtered);
 }
@@ -1120,12 +1140,14 @@ function renderProducts(products) {
     const imgHtml = p.bild_url
       ? `<img src="${esc(p.bild_url)}" alt="${esc(p.name)}" loading="lazy">`
       : `<span style="font-size:2.5rem;">🕶️</span>`;
+    const farbObj = allFarben.find(f => f.name === p.farbe);
+    const farbDot = farbObj ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${esc(farbObj.hex)};border:1px solid rgba(0,0,0,0.15);margin-right:4px;vertical-align:middle;"></span>` : '';
     return `
     <div class="product-card ${stockClass}" onclick="openDetail('${p.id}')">
       <div class="card-img ${p.bild_url ? '' : 'no-img'}">${imgHtml}</div>
       <div class="card-body">
         <div class="card-name">${esc(p.name)}</div>
-        <div class="card-brand">${esc(p.marke || '—')}</div>
+        <div class="card-brand">${farbDot}${esc(p.farbe || p.marke || '—')}</div>
         <div class="card-footer">
           <div class="card-price">${p.preis ? formatCurrency(p.preis) : '—'}</div>
           <span class="stock-badge ${badgeClass}">${badgeText}</span>
