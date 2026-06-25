@@ -349,6 +349,26 @@
   .detail-field .field-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
   .detail-field .field-val { font-weight: 600; font-size: 0.95rem; }
   .detail-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  /* STOCK ADJUSTER */
+  .stock-adjuster {
+    display: flex; align-items: center; justify-content: center;
+    gap: 1.25rem; background: var(--bg); border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+  }
+  .stock-btn {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid var(--primary); background: var(--surface);
+    color: var(--primary); font-size: 1.5rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+  .stock-btn:hover { background: var(--primary); color: white; }
+  .stock-btn:active { transform: scale(0.92); }
+  .stock-display { text-align: center; min-width: 60px; }
+  .stock-num { font-size: 2.2rem; font-weight: 700; color: var(--primary); display: block; line-height: 1; }
+  .stock-unit { font-size: 0.78rem; color: var(--text-muted); }
   .detail-notes { background: var(--bg); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.9rem; line-height: 1.6; }
 
   /* TOAST */
@@ -928,9 +948,20 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
       </div>
 
       <div class="detail-section">
-        <div class="detail-section-title">Bestand & Info</div>
+        <div class="detail-section-title">Bestand</div>
+        <div class="stock-adjuster">
+          <button class="stock-btn" onclick="adjustStock(-1)">−</button>
+          <div class="stock-display">
+            <span class="stock-num" id="dMenge">0</span>
+            <span class="stock-unit">Stück</span>
+          </div>
+          <button class="stock-btn" onclick="adjustStock(1)">+</button>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">Info</div>
         <div class="detail-grid">
-          <div class="detail-field"><div class="field-label">Menge</div><div class="field-val" id="dMenge"></div></div>
           <div class="detail-field"><div class="field-label">Farbe</div><div class="field-val" id="dFarbe"></div></div>
           <div class="detail-field"><div class="field-label">Material</div><div class="field-val" id="dMaterial"></div></div>
           <div class="detail-field"><div class="field-label">Modell</div><div class="field-val" id="dModell"></div></div>
@@ -1290,7 +1321,7 @@ function openDetail(id) {
   document.getElementById('dName').textContent = p.name;
   document.getElementById('dBrand').textContent = p.marke || '';
   document.getElementById('dPrice').textContent = p.preis ? formatCurrency(p.preis) : '—';
-  document.getElementById('dMenge').textContent = (p.menge || 0) + ' Stück';
+  document.getElementById('dMenge').textContent = p.menge || 0;
   document.getElementById('dFarbe').textContent = p.farbe || '—';
   document.getElementById('dMaterial').textContent = p.material || '—';
   document.getElementById('dModell').textContent = p.modell || '—';
@@ -1326,6 +1357,21 @@ function openDetail(id) {
 }
 
 function closeDetailModal() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+async function adjustStock(delta) {
+  const p = allProducts.find(x => x.id === currentProductId);
+  if (!p) return;
+  const newMenge = Math.max(0, (p.menge || 0) + delta);
+  const el = document.getElementById('dMenge');
+  el.textContent = newMenge;
+  const { error } = await db.from('produkte').update({ menge: newMenge }).eq('id', currentProductId);
+  if (error) { el.textContent = p.menge || 0; toast('Fehler: ' + error.message, 'error'); return; }
+  p.menge = newMenge;
+  const badgeClass = !newMenge ? 'stock-out' : newMenge <= 5 ? 'stock-low' : 'stock-ok';
+  const badgeText = !newMenge ? 'Ausverkauft' : newMenge <= 5 ? 'Wenig Lager' : 'Vorrätig';
+  document.getElementById('dBadge').innerHTML = `<span class="stock-badge ${badgeClass}">${badgeText}</span>`;
+  renderProducts(allProducts.filter(() => true));
+}
 
 function editCurrentProduct() {
   const p = allProducts.find(x => x.id === currentProductId);
