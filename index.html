@@ -646,15 +646,23 @@
           <div class="form-group">
             <label>Monat</label>
             <select id="eMonat">
-              <option>Januar</option><option>Februar</option><option>März</option>
-              <option>April</option><option>Mai</option><option>Juni</option>
-              <option>Juli</option><option>August</option><option>September</option>
-              <option>Oktober</option><option>November</option><option>Dezember</option>
+              <option value="Januar">Januar</option>
+              <option value="Februar">Februar</option>
+              <option value="Maerz">März</option>
+              <option value="April">April</option>
+              <option value="Mai">Mai</option>
+              <option value="Juni">Juni</option>
+              <option value="Juli">Juli</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="Oktober">Oktober</option>
+              <option value="November">November</option>
+              <option value="Dezember">Dezember</option>
             </select>
           </div>
           <div class="form-group">
             <label>Datum</label>
-            <input type="date" id="eDatum">
+            <input type="date" id="eDatum" onchange="autoSelectMonat(this.value)">
           </div>
         </div>
         <div class="form-group">
@@ -1024,7 +1032,13 @@ CREATE POLICY "Öffentlicher Zugriff" ON produkte FOR ALL USING (true) WITH CHEC
     </div>
 
     <div class="cockpit-section">
-      <div class="cockpit-section-title">📋 Monatsdetail</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.5rem;margin-bottom:0.75rem;">
+        <div class="cockpit-section-title" style="padding-top:0;margin-bottom:0;">📋 Monatsdetail</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;min-height:0;" onclick="exportCSV()" title="Als Excel exportieren">⬇️ CSV</button>
+          <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;min-height:0;" onclick="exportPrint()" title="Drucken / PDF">🖨️ PDF</button>
+        </div>
+      </div>
       <div class="month-tabs" id="monthTabs"></div>
       <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
         <button class="month-tab active" id="viewEin" onclick="setView('einnahmen')">Einnahmen</button>
@@ -1467,6 +1481,86 @@ function switchTab(tab) {
 const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
 const MONATSREIHENFOLGE = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MONAT_DISPLAY = { Januar:'Januar', Februar:'Februar', Maerz:'März', April:'April', Mai:'Mai', Juni:'Juni', Juli:'Juli', August:'August', September:'September', Oktober:'Oktober', November:'November', Dezember:'Dezember' };
+const MONAT_FROM_NUM = { '01':'Januar','02':'Februar','03':'Maerz','04':'April','05':'Mai','06':'Juni','07':'Juli','08':'August','09':'September','10':'Oktober','11':'November','12':'Dezember' };
+
+function autoSelectMonat(dateVal) {
+  if (!dateVal) return;
+  const mm = dateVal.slice(5, 7);
+  const monat = MONAT_FROM_NUM[mm];
+  if (monat) document.getElementById('eMonat').value = monat;
+}
+
+function exportCSV() {
+  const monat = cockpitMonth;
+  const label = MONAT_DISPLAY[monat] || monat;
+  const ein = customEntries.filter(e => e.monat === monat && e.typ === 'einnahmen');
+  const aus = customEntries.filter(e => e.monat === monat && e.typ === 'ausgaben');
+  const totalE = ein.reduce((s,e) => s + Number(e.betrag), 0);
+  const totalA = aus.reduce((s,e) => s + Number(e.betrag), 0);
+  const rows = [
+    ['Typ','Datum','Produkt','Betrag (EUR)'],
+    ...ein.map(e => ['Einnahme', e.datum||'', e.produkt, Number(e.betrag).toFixed(2)]),
+    ...aus.map(e => ['Ausgabe',  e.datum||'', e.produkt, Number(e.betrag).toFixed(2)]),
+    [],
+    ['','','Einnahmen gesamt', totalE.toFixed(2)],
+    ['','','Ausgaben gesamt',  totalA.toFixed(2)],
+    ['','','Gewinn',           (totalE - totalA).toFixed(2)],
+  ];
+  const csv = '﻿' + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `Cockpit_${label}_2026.csv`;
+  a.click();
+}
+
+function exportPrint() {
+  const monat = cockpitMonth;
+  const label = MONAT_DISPLAY[monat] || monat;
+  const ein = customEntries.filter(e => e.monat === monat && e.typ === 'einnahmen');
+  const aus = customEntries.filter(e => e.monat === monat && e.typ === 'ausgaben');
+  const totalE = ein.reduce((s,e) => s + Number(e.betrag), 0);
+  const totalA = aus.reduce((s,e) => s + Number(e.betrag), 0);
+  const gewinn = totalE - totalA;
+  const fmtE = v => v.toLocaleString('de-DE', {style:'currency',currency:'EUR'});
+  const rows = (arr, cls) => arr.map(e =>
+    `<tr><td>${e.datum||'—'}</td><td>${e.produkt}</td><td class="${cls}">${fmtE(Number(e.betrag))}</td></tr>`
+  ).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cockpit ${label} 2026</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; color: #1a1a2e; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+    .sub { color: #888; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th { background: #1a1a2e; color: white; padding: 8px 10px; text-align: left; font-size: 0.85rem; }
+    td { padding: 7px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .pos { color: #16a34a; font-weight: 600; text-align: right; }
+    .neg { color: #dc2626; font-weight: 600; text-align: right; }
+    .summary { background: #f8f7f4; border-radius: 8px; padding: 1rem 1.25rem; display: flex; gap: 2rem; }
+    .s-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .s-val { font-size: 1.2rem; font-weight: 700; }
+    .g-pos { color: #16a34a; } .g-neg { color: #dc2626; }
+    @media print { body { padding: 1rem; } }
+  </style></head><body>
+  <h1>🕶️ Sales Cockpit — ${label} 2026</h1>
+  <div class="sub">Exportiert am ${new Date().toLocaleDateString('de-DE')}</div>
+  <table><thead><tr><th>Datum</th><th>Produkt</th><th style="text-align:right">Betrag</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3" style="background:#f0fdf4;font-weight:700;padding:6px 10px;">Einnahmen</td></tr>
+    ${rows(ein,'pos')}
+    <tr><td colspan="3" style="background:#fef2f2;font-weight:700;padding:6px 10px;">Ausgaben</td></tr>
+    ${rows(aus,'neg')}
+  </tbody></table>
+  <div class="summary">
+    <div><div class="s-label">Einnahmen</div><div class="s-val g-pos">${fmtE(totalE)}</div></div>
+    <div><div class="s-label">Ausgaben</div><div class="s-val g-neg">${fmtE(totalA)}</div></div>
+    <div><div class="s-label">Gewinn</div><div class="s-val ${gewinn>=0?'g-pos':'g-neg'}">${fmtE(gewinn)}</div></div>
+  </div>
+  <script>window.onload=()=>window.print()<\/script></body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
 
 // ── COCKPIT LOGIC ─────────────────────────────────────────────────────────────
 let cockpitMonth = 'Juni';
